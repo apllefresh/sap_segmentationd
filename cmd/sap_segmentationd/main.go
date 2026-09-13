@@ -7,27 +7,30 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"sap_segmentation/internal/config"
 )
 
 func main() {
-	connURI := "http://bsm.api.iql.ru/ords/bsm/segmentation/get_segmentation"
-	connAuthLoginPwd := "4Dfddf5:jKlljHGH"
-	connUserAgent := "spacecount-test"
-	connTimeoutSec := 5
-	importBatchSize := 50
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Printf("load config: %v\n", err)
+		return
+	}
+
 	pOffset := 1
 
 	client := &http.Client{
-		Timeout: time.Duration(connTimeoutSec) * time.Second,
+		Timeout: time.Duration(cfg.ConnTimeout) * time.Second,
 	}
 
-	u, err := url.Parse(connURI)
+	u, err := url.Parse(cfg.ConnURI)
 	if err != nil {
 		fmt.Printf("Invalid CONN_URI: %v\n", err)
 		return
 	}
 	q := u.Query()
-	q.Set("p_limit", fmt.Sprintf("%d", importBatchSize))
+	q.Set("p_limit", fmt.Sprintf("%d", cfg.ImportBatchSize))
 	q.Set("p_offset", fmt.Sprintf("%d", pOffset))
 	u.RawQuery = q.Encode()
 	requestURL := u.String()
@@ -38,8 +41,10 @@ func main() {
 		return
 	}
 
-	req.Header.Set("User-Agent", connUserAgent)
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(connAuthLoginPwd)))
+	req.Header.Set("User-Agent", cfg.ConnUserAgent)
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(cfg.ConnAuthLoginPwd)))
+
+	fmt.Printf("GET %s\n", requestURL)
 
 	resp, err := client.Do(req)
 	if err != nil {
