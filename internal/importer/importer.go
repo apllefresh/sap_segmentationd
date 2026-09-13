@@ -1,4 +1,4 @@
-package repository
+package importer
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"sap_segmentation/internal/api"
 	"sap_segmentation/internal/config"
+	"sap_segmentation/internal/erp"
 	"sap_segmentation/model"
 )
 
 func Run(ctx context.Context, cfg config.Config, db *sqlx.DB) error {
-	client := api.NewClient(cfg)
+	client := erp.NewClient(cfg)
 
 	var total int
 	err := client.RunAll(ctx, func(segments []model.Segmentation) error {
@@ -26,7 +26,7 @@ func Run(ctx context.Context, cfg config.Config, db *sqlx.DB) error {
 		return nil
 	})
 	if err != nil {
-		log.Printf("erp import error: %v", err)
+		log.Printf("import error: %v", err)
 		return err
 	}
 
