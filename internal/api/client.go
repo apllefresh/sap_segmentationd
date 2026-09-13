@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -58,7 +59,7 @@ func (c *Client) FetchBatch(ctx context.Context, offset int) ([]model.Segmentati
 		return nil, "", err
 	}
 
-	fmt.Printf("GET %s\n", requestURL)
+	log.Printf("requesting data from endpoint: %s", requestURL)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
@@ -124,15 +125,11 @@ func (c *Client) RunAll(ctx context.Context, onBatch func([]model.Segmentation) 
 			return err
 		}
 		if len(segments) == 0 {
-			fmt.Println("empty response, import loop finished")
+			log.Println("empty response, import loop finished")
 			return nil
 		}
 
-		fmt.Printf("status: %s\n", status)
-		for _, segment := range segments {
-			fmt.Printf("%+v\n", segment)
-		}
-		fmt.Println()
+		log.Printf("batch received: %d rows, status: %s", len(segments), status)
 
 		if onBatch != nil {
 			if err := onBatch(segments); err != nil {

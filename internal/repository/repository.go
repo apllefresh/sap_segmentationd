@@ -54,6 +54,7 @@ func Run(ctx context.Context, cfg config.Config, db *sqlx.DB) error {
 	var total int
 	err := client.RunAll(ctx, func(segments []model.Segmentation) error {
 		if err := UpsertBatch(ctx, db, segments); err != nil {
+			log.Printf("database upsert error: %v", err)
 			return fmt.Errorf("save batch: %w", err)
 		}
 		total += len(segments)
@@ -61,6 +62,7 @@ func Run(ctx context.Context, cfg config.Config, db *sqlx.DB) error {
 		return nil
 	})
 	if err != nil {
+		log.Printf("erp import error: %v", err)
 		return err
 	}
 

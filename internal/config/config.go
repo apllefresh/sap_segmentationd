@@ -18,6 +18,7 @@ type Config struct {
 	ConnTimeout      int    `envconfig:"CONN_TIMEOUT" default:"5"`
 	ConnIntervalMs   int    `envconfig:"CONN_INTERVAL" default:"1500"`
 	ImportBatchSize  int    `envconfig:"IMPORT_BATCH_SIZE" default:"50"`
+	LogCleanupMaxAge int    `envconfig:"LOG_CLEANUP_MAX_AGE" default:"7"`
 }
 
 func Load() (Config, error) {

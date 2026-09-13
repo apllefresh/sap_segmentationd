@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -12,15 +11,21 @@ import (
 	_ "github.com/lib/pq"
 
 	"sap_segmentation/internal/config"
+	"sap_segmentation/internal/logx"
 	"sap_segmentation/internal/repository"
 )
 
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		fmt.Printf("load config: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("load config: %v", err)
 	}
+
+	if err := logx.Init(); err != nil {
+		log.Fatalf("init logger: %v", err)
+	}
+
+	logx.CleanupOld(cfg.LogCleanupMaxAge)
 
 	db, err := sqlx.Connect("postgres", cfg.PostgresDSN())
 	if err != nil {
