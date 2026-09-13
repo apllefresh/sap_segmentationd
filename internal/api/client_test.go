@@ -1,4 +1,4 @@
-package erp
+package api
 
 import (
 	"context"
@@ -144,7 +144,7 @@ func TestFetchBatch_emptyStopsPagination(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(testConfig(srv.URL))
-	if err := c.RunAll(context.Background()); err != nil {
+	if err := c.RunAll(context.Background(), nil); err != nil {
 		t.Fatal(err)
 	}
 	if call != 2 {

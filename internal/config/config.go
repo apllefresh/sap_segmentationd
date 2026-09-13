@@ -1,10 +1,17 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
+	DBHost           string `envconfig:"DB_HOST" default:"127.0.0.1"`
+	DBPort           string `envconfig:"DB_PORT" default:"5432"`
+	DBName           string `envconfig:"DB_NAME" default:"mesh_group"`
+	DBUser           string `envconfig:"DB_USER" default:"postgres"`
+	DBPassword       string `envconfig:"DB_PASSWORD" default:"postgres"`
 	ConnURI          string `envconfig:"CONN_URI" default:"http://bsm.api.iql.ru/ords/bsm/segmentation/get_segmentation"`
 	ConnAuthLoginPwd string `envconfig:"CONN_AUTH_LOGIN_PWD" default:"4Dfddf5:jKlljHGH"`
 	ConnUserAgent    string `envconfig:"CONN_USER_AGENT" default:"spacecount-test"`
@@ -19,4 +26,11 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 	return cfg, nil
+}
+
+func (c Config) PostgresDSN() string {
+	return fmt.Sprintf(
+		"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+		c.DBHost, c.DBPort, c.DBName, c.DBUser, c.DBPassword,
+	)
 }

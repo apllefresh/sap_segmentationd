@@ -1,4 +1,4 @@
-package erp
+package api
 
 import (
 	"context"
@@ -111,7 +111,8 @@ func decodeBatch(body []byte) (segments []model.Segmentation, empty bool, err er
 }
 
 // RunAll requests ERP pages until the response body is empty (offset: 1, 50, 100, …).
-func (c *Client) RunAll(ctx context.Context) error {
+// onBatch is called for each non-empty page; when nil, rows are only printed to stdout.
+func (c *Client) RunAll(ctx context.Context, onBatch func([]model.Segmentation) error) error {
 	for page := 0; ; page++ {
 		if err := ctx.Err(); err != nil {
 			return err
@@ -132,6 +133,12 @@ func (c *Client) RunAll(ctx context.Context) error {
 			fmt.Printf("%+v\n", segment)
 		}
 		fmt.Println()
+
+		if onBatch != nil {
+			if err := onBatch(segments); err != nil {
+				return err
+			}
+		}
 
 		time.Sleep(time.Duration(c.cfg.ConnIntervalMs) * time.Millisecond)
 	}
